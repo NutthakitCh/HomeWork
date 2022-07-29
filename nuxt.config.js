@@ -22,6 +22,8 @@ export default {
     script: [{ src: 'https://static.line-scdn.net/liff/edge/2/sdk.js' }],
   },
 
+  target: 'static',
+
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [],
 
