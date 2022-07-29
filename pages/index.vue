@@ -1,92 +1,91 @@
 <template>
   <div>
     <registerHeader />
-    <div v-if="onLoading"></div>
-    <div v-else>
-      <v-form ref="form" class="form-container">
-        <!-- name input -->
-        <p class="input-label">ชื่อ - นามสกุล {{ user_id }}</p>
-        <p class="description-label">(ใช้เพื่อจับฉลาก และ ประกาศรางวัล)</p>
-        <v-text-field
-          v-model="name"
-          color="#E0E0E0"
-          placeholder="ชื่อ นามสกุล"
-          outlined
-          required
-        ></v-text-field>
+    <v-form ref="form" v-model="valid" class="form-container">
+      <!-- name input -->
+      <p class="input-label">ชื่อ - นามสกุล</p>
+      <p class="description-label">(ใช้เพื่อจับฉลาก และ ประกาศรางวัล)</p>
+      <v-text-field
+        v-model="name"
+        color="#E0E0E0"
+        placeholder="ชื่อ นามสกุล"
+        outlined
+        required
+        :rules="[rules.required]"
+      ></v-text-field>
 
-        <!-- phone input -->
-        <p class="input-label">เบอร์ติดต่อ</p>
-        <p class="description-label">(ใช้เพื่อจับฉลาก และ ประกาศรางวัล)</p>
-        <v-text-field
-          v-model="phone"
-          color="#E0E0E0"
-          placeholder="0xxxxxxxxx"
-          outlined
-        ></v-text-field>
+      <!-- phone input -->
+      <p class="input-label">เบอร์ติดต่อ</p>
+      <p class="description-label">(ใช้เพื่อจับฉลาก และ ประกาศรางวัล)</p>
+      <v-text-field
+        v-model="phone"
+        color="#E0E0E0"
+        placeholder="0xxxxxxxxx"
+        outlined
+        :rules="[rules.required, rules.phone]"
+      ></v-text-field>
 
-        <!-- address input -->
-        <p class="input-label">ที่อยู่ในการจัดส่ง</p>
-        <p class="description-label">(ใช้เพื่อจับฉลาก และ ประกาศรางวัล)</p>
-        <v-textarea
-          v-model="address"
-          auto-grow
-          outlined
-          color="#E0E0E0"
-          rows="3"
-        ></v-textarea>
+      <!-- address input -->
+      <p class="input-label">ที่อยู่ในการจัดส่ง</p>
+      <p class="description-label">(ใช้เพื่อจับฉลาก และ ประกาศรางวัล)</p>
+      <v-textarea
+        v-model="address"
+        auto-grow
+        outlined
+        color="#E0E0E0"
+        rows="3"
+        :rules="[rules.required]"
+      ></v-textarea>
 
-        <!-- answer input -->
-        <p class="input-label">
-          คุณรู้หรือไม่ว่า !
-          <span class="highlight"><span>6</span> เมนู</span>ในแอปพลิเคชัน GHB
-          ALL มีอะไรบ้าง ?
-        </p>
-        <v-radio-group v-model="answer" column>
-          <radioItem
-            v-for="choice in choices"
-            :key="choice.value"
-            :label="choice.label"
-            :value="choice.value"
-          />
-        </v-radio-group>
+      <!-- answer input -->
+      <p class="input-label">
+        คุณรู้หรือไม่ว่า !
+        <span class="highlight"><span>6</span> เมนู</span>ในแอปพลิเคชัน GHB ALL
+        มีอะไรบ้าง ?
+      </p>
+      <v-radio-group v-model="answer" column>
+        <radioItem
+          v-for="choice in choices"
+          :key="choice.value"
+          :label="choice.label"
+          :value="choice.value"
+        />
+      </v-radio-group>
 
-        <!-- feedback input -->
-        <p class="input-label">
-          ท่านอยากให้มีเมนูหรือฟีเจอร์อะไรเพิ่มเติมอีกบ้าง
-        </p>
-        <v-textarea
-          v-model="feedback"
-          placeholder="โปรดระบุ?"
-          auto-grow
-          outlined
-          color="#F3F3F3"
-          rows="3"
-        ></v-textarea>
+      <!-- feedback input -->
+      <p class="input-label">
+        ท่านอยากให้มีเมนูหรือฟีเจอร์อะไรเพิ่มเติมอีกบ้าง
+      </p>
+      <v-textarea
+        v-model="feedback"
+        placeholder="โปรดระบุ?"
+        auto-grow
+        outlined
+        color="#F3F3F3"
+        rows="3"
+      ></v-textarea>
 
-        <p class="description-label center-text">
-          หมายเหตุ : กรุณากรอกข้อมูลให้ถูกต้องครบถ้วน
-          เพื่อประโยชน์ในการร่วมกิจกรรมของท่าน
-        </p>
-      </v-form>
-      <footerButton lable="ส่งคำตอบ" @btn-click="handleClick" />
-    </div>
+      <p class="description-label center-text">
+        หมายเหตุ : กรุณากรอกข้อมูลให้ถูกต้องครบถ้วน
+        เพื่อประโยชน์ในการร่วมกิจกรรมของท่าน
+      </p>
+    </v-form>
+    <footerButton lable="ส่งคำตอบ" @btn-click="handleClick" />
   </div>
 </template>
 
 <script>
+import axios from 'axios'
 import registerHeader from '../components/registerHeader.vue'
 import footerButton from '../components/footerButton.vue'
 import radioItem from '../components/radioItem.vue'
 
-// import axios from 'axios'
 export default {
   name: 'IndexPage',
   components: { registerHeader, footerButton, radioItem },
   data() {
     return {
-      liff: {},
-      onLoading: false,
+      valid: false,
       name: '',
       phone: '',
       address: '',
@@ -113,6 +112,14 @@ export default {
           value: 4,
         },
       ],
+      rules: {
+        required: (value) => !!value || '*จำเป็น', // requre validate
+        phone: (value) => {
+          // phone number validate
+          const pattern = /^[0-9]{10}$/g
+          return pattern.test(value) || 'เบอร์ไม่ถูกต้อง'
+        },
+      },
     }
   },
   head() {
@@ -121,23 +128,29 @@ export default {
     }
   },
   async mounted() {
-    this.liff = window.liff
+    const liff = window.liff
 
-    await this.liff.init({
+    await liff.init({
       liffId: '1655139052-26m30wBe',
     })
-
-    if (this.liff.isLoggedIn()) {
-      this.user_id = await this.liff.getProfile().userId
+    // log in if open on browser
+    if (liff.isLoggedIn()) {
+      const profile = await liff.getProfile()
+      this.user_id = profile.userId
     } else {
-      await this.liff.login()
+      liff.login()
     }
-
-    this.onLoading = false
   },
   methods: {
-    handleClick() {
-      this.onLoading = false
+    async handleClick() {
+      if (
+        !this.$refs.form.validate() || // check if every data is correct
+        this.user_id === '' ||
+        this.answer === ''
+      ) {
+        return 0
+      }
+
       // prepare data
       const data = {
         name: this.name,
@@ -147,16 +160,16 @@ export default {
         feedback: this.feedback,
         user_id: this.user_id,
       }
-      console.log(data)
 
       // request api
       try {
-        // await axios.post('https://ghbank-online-activity.digitalsetup.co/api/v1/register_06_2022', data)
+        await axios.post(
+          'https://ghbank-online-activity.digitalsetup.co/api/v1/register_06_2022',
+          data
+        )
         // Go to finish Page
-        // this.$router.push('/finish')
-      } catch (err) {
-        this.onLoading = false
-      }
+        this.$router.push('/finish')
+      } catch (err) {}
     },
   },
 }
@@ -193,5 +206,9 @@ export default {
 
 .highlight span {
   font-size: 32px;
+}
+
+.error--text {
+  color: #f00 !important;
 }
 </style>

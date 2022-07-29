@@ -12,7 +12,7 @@
       </p>
     </div>
 
-    <footerButtonVue lable="เสร็จสิ้น" />
+    <footerButtonVue lable="เสร็จสิ้น" @btn-click="handleClick" />
   </div>
 </template>
 
@@ -30,6 +30,12 @@ export default {
     return {
       title: 'Finish',
     }
+  },
+  methods: {
+    handleClick() {
+      const liff = window.liff
+      liff.closeWindow()
+    },
   },
 }
 </script>
